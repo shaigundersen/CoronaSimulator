@@ -1,6 +1,6 @@
 import random
 
-from colors import *
+from color import *
 import pygame
 
 class Cell:

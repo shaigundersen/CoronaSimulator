@@ -3,7 +3,7 @@ import random
 import time
 
 import pygame
-from colors import *
+from color import *
 from cell import Cell
 from cell import Creature
 from cell import Directions
