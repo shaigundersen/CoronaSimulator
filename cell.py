@@ -23,11 +23,23 @@ class Cell:
     def set_free(self):
         self.color = WHITE
 
-    def is_taken(self):
+    def is_creature(self):
+        return self.color == RED  # black means it has a creature on it
+
+    def is_sick(self):
         return self.color == BLACK  # black means it has a creature on it
 
-    def set_taken(self):
+    def is_fast(self):
+        return self.color == PURPLE
+
+    def set_taken_creature(self):
+        self.color = RED
+
+    def set_sick_creature(self):
         self.color = BLACK
+
+    def set_fast_creature(self):
+        self.color = GREEN
 
     def draw(self, surface):
         pygame.draw.rect(surface, self.color, (self.x, self.y, self.width, self.width))
@@ -73,6 +85,28 @@ class Creature:
         positions.append((self.row+1, self.col+1))
         # ↙
         positions.append((self.row+1, self.col-1))
+        return random.choice(positions)
+
+    def pick_fast_move(self):
+        positions = []
+        # stay
+        positions.append((self.row, self.col))
+        # ↑
+        positions.append((self.row-10, self.col))
+        # →
+        positions.append((self.row, self.col+10))
+        # ↓
+        positions.append((self.row+10, self.col))
+        # ←
+        positions.append((self.row, self.col-10))
+        # ↖
+        positions.append((self.row-10, self.col-10))
+        # ↗
+        positions.append((self.row-10, self.col+10))
+        # ↘
+        positions.append((self.row+10, self.col+10))
+        # ↙
+        positions.append((self.row+10, self.col-10))
         return random.choice(positions)
 
     def make_move(self, row, col):
