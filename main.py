@@ -7,6 +7,7 @@ from color import *
 from cell import Cell
 from cell import Creature
 from cell import Directions
+import matplotlib.pyplot as plt
 
 SICK_PERCENT_PARAMETER = 0.0001
 FAST_PERCENT_PARAMETER = 0.2
@@ -17,7 +18,7 @@ LOW_INFECTION_PROB = 0.25
 
 class Grid:
     def __init__(self, rows, width, num_creatures, sick_percent, faster_percent, num_generations,
-                 low_infection_prob, high_infection_prob, T):
+                 low_infection_prob, high_infection_prob, T, X):
         self.rows = self.cols = rows
         self.width = width
         self.cells = self.__make_cells()
@@ -29,6 +30,8 @@ class Grid:
         self.high_infection_prob = high_infection_prob
         self.num_creatures = num_creatures
         self.T = T
+        self.X = X
+        self.infection_calender = self.__make_infection_calender()
 
     def get_cell(self, row, col) -> Cell:
         return self.cells[row][col]
@@ -91,8 +94,10 @@ class Grid:
         return count / len(self.creatures)
 
     def update(self):
+        print(self.get_sickness_percent())
         self.__move_creatures()
         self.__handle_infection()
+        self.__update_calender()
 
     def __handle_infection(self):
         # infection
@@ -102,12 +107,14 @@ class Grid:
                 for neighbor in self.get_neighbors(creature):
                     if not neighbor.is_sick():  # sick creature can't be infected
                         p = random.random()
-                        if sickness_percent > self.T:  # high % sickness -> hard to get infected -> p >= high_infection_prob
+                        if sickness_percent > self.T:  # high % sickness -> hard to get infected
                             if p >= self.high_infection_prob:
                                 neighbor.set_sick(True)
-                        else:  # low % sickness -> easy to get infected -> p >= low_infection_prob
+                                self.infection_calender[neighbor] = 0  # add him to calender
+                        else:  # low % sickness -> easy to get infected
                             if p >= self.low_infection_prob:
                                 neighbor.set_sick(True)
+                                self.infection_calender[neighbor] = 0
 
     def __move_creatures(self):
         # each creature picks a move, set old cell as free and new cell as taken by creature
@@ -172,22 +179,54 @@ class Grid:
                 neighbors.append(neighbor_creature)
         return neighbors
 
+    def __make_infection_calender(self):
+        infection_calender = {}
+        for creature in self.creatures:
+            if creature.is_sick():
+                infection_calender[creature] = 0
+        return infection_calender
+
+    def __update_calender(self):
+        creatures_for_deletion = []  # need this cause dict can't changed size during iteration
+        for creature, infected_days in self.infection_calender.items():
+            self.infection_calender[creature] = infected_days + 1
+            if self.infection_calender[creature] > self.X:
+                creature.make_immune()
+                creatures_for_deletion.append(creature)
+        for creature in creatures_for_deletion:
+            self.infection_calender.pop(creature)
+
+def plot(X, Y):
+    plt.plot(X, Y)
+    plt.xlabel('Generation')
+    plt.ylabel('Infected percent')
+    plt.show()
+
+
 if __name__ == '__main__':
     # setup
     dimension = 600
     ROWS = 200
     surface = pygame.display.set_mode((dimension, dimension))
     pygame.display.set_caption("Corona Infection Simulator")
-
+    infected_percents = []
+    generations = []
+    gen = 0
     # cell environment setup
     grid = Grid(ROWS, dimension, 100*100, SICK_PERCENT_PARAMETER, FAST_PERCENT_PARAMETER,
-                NUM_GENERATIONS, LOW_INFECTION_PROB, HIGH_INFECTION_PROB, T=0.5)
+                NUM_GENERATIONS, LOW_INFECTION_PROB, HIGH_INFECTION_PROB, T=0.5, X=10)
     game_running = True
     while game_running:
+        infected_percents.append(grid.get_sickness_percent())
+        generations.append(gen)
         grid.draw(surface)
         grid.update()
+        if grid.get_sickness_percent() == 0:
+            game_running = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_running = False
+        gen += 1
     pygame.quit()
+    plot(X=generations, Y=infected_percents)
 

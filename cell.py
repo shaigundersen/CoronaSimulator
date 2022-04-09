@@ -15,6 +15,7 @@ class Creature:
         self.speed = speed
         self.sick = sick
         self.movement_strategy = random.choice  # can have any type of picking strategy
+        self.immune = False
 
 
     def pick_move(self, moves: list):
@@ -31,7 +32,8 @@ class Creature:
         return self.sick
 
     def set_sick(self, sick: bool):
-        self.sick = sick
+        if not self.immune:
+            self.sick = sick
 
     def get_sickness_state(self) -> tuple[int, int, int]:
         if self.sick:
@@ -41,6 +43,10 @@ class Creature:
 
     def get_speed(self):
         return self.speed
+
+    def make_immune(self):
+        self.immune = True
+        self.sick = False
 
 class Cell:
     BASE_COLOR = WHITE
