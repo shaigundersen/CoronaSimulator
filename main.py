@@ -1,6 +1,4 @@
-import math
 import random
-import time
 
 import pygame
 from color import *
@@ -14,7 +12,8 @@ FAST_PERCENT_PARAMETER = 0.2
 NUM_GENERATIONS = 10
 HIGH_INFECTION_PROB = 0.75
 LOW_INFECTION_PROB = 0.25
-
+T = 0.5
+X = 10
 
 class Grid:
     def __init__(self, rows, width, num_creatures, sick_percent, faster_percent, num_generations,
@@ -23,12 +22,9 @@ class Grid:
         self.width = width
         self.cells = self.__make_cells()
         self.creatures = self.__make_creatures(num_creatures, sick_percent, faster_percent)
-        self.sick_percent = sick_percent
-        self.faster_percent = faster_percent
         self.num_generations = num_generations
         self.low_infection_prob = low_infection_prob
         self.high_infection_prob = high_infection_prob
-        self.num_creatures = num_creatures
         self.T = T
         self.X = X
         self.infection_calender = self.__make_infection_calender()
@@ -94,7 +90,6 @@ class Grid:
         return count / len(self.creatures)
 
     def update(self):
-        print(self.get_sickness_percent())
         self.__move_creatures()
         self.__handle_infection()
         self.__update_calender()
@@ -214,7 +209,7 @@ if __name__ == '__main__':
     gen = 0
     # cell environment setup
     grid = Grid(ROWS, dimension, 100*100, SICK_PERCENT_PARAMETER, FAST_PERCENT_PARAMETER,
-                NUM_GENERATIONS, LOW_INFECTION_PROB, HIGH_INFECTION_PROB, T=0.5, X=10)
+                NUM_GENERATIONS, LOW_INFECTION_PROB, HIGH_INFECTION_PROB, T, X)
     game_running = True
     while game_running:
         infected_percents.append(grid.get_sickness_percent())
