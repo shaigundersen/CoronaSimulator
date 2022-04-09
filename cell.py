@@ -3,46 +3,78 @@ import random
 from color import *
 import pygame
 
+class Creature:
+    BASE_COLOR = GREEN
+    SICK_COLOR = RED
+    BASE_SPEED = 1
+    FAST_SPEED = 10
+
+    def __init__(self, row: int, col: int, speed: int, sick: bool):
+        self.row = row
+        self.col = col
+        self.speed = speed
+        self.sick = sick
+        self.movement_strategy = random.choice  # can have any type of picking strategy
+
+
+    def pick_move(self, moves: list):
+        return self.movement_strategy(moves)
+
+    def make_move(self, row, col):
+        self.row = row
+        self.col = col
+
+    def get_pos(self):
+        return self.row, self.col
+
+    def is_sick(self):
+        return self.sick
+
+    def set_sick(self, sick: bool):
+        self.sick = sick
+
+    def get_sickness_state(self) -> tuple[int, int, int]:
+        if self.sick:
+            return Creature.SICK_COLOR
+        else:
+            return Creature.BASE_COLOR
+
+    def get_speed(self):
+        return self.speed
+
 class Cell:
+    BASE_COLOR = WHITE
+
     def __init__(self, row, col, cell_width):
         self.row = row
         self.col = col
         self.x = row * cell_width
         self.y = col * cell_width
-        # self.color = random.choice([WHITE, BLACK])
         self.color = WHITE
         self.neighbors = []
         self.width = cell_width
+        self.creature = None
+
+    def set_creature(self, creature: Creature):
+        self.creature = creature
+
+    def get_creature_or_none(self):
+        return self.creature
 
     def get_pos(self):
         return self.row, self.col
 
-    def is_free(self):
-        return self.color == WHITE  # black means it has a creature on it
+    def is_free(self) -> bool:
+        return self.creature is None
 
     def set_free(self):
-        self.color = WHITE
-
-    def is_creature(self):
-        return self.color == RED  # black means it has a creature on it
-
-    def is_sick(self):
-        return self.color == BLACK  # black means it has a creature on it
-
-    def is_fast(self):
-        return self.color == PURPLE
-
-    def set_taken_creature(self):
-        self.color = RED
-
-    def set_sick_creature(self):
-        self.color = BLACK
-
-    def set_fast_creature(self):
-        self.color = GREEN
+        self.creature = None
 
     def draw(self, surface):
-        pygame.draw.rect(surface, self.color, (self.x, self.y, self.width, self.width))
+        if self.creature:  # reflect creature's sickness color on cell
+            pygame.draw.rect(surface, self.creature.get_sickness_state(), (self.x, self.y, self.width, self.width))
+        else:
+            pygame.draw.rect(surface, Cell.BASE_COLOR, (self.x, self.y, self.width, self.width))
 
     # def update_neighbors(self, grid):
     #     self.neighbors = []
@@ -60,65 +92,8 @@ class Cell:
     #         self.neighbors.append(grid[self.row][self.col - 1])
 
 
-class Creature:
-    def __init__(self, row, col):
-        self.row = row
-        self.col = col
-
-    def pick_move(self):
-        positions = []
-        # stay
-        positions.append((self.row, self.col))
-        # ↑
-        positions.append((self.row-1, self.col))
-        # →
-        positions.append((self.row, self.col+1))
-        # ↓
-        positions.append((self.row+1, self.col))
-        # ←
-        positions.append((self.row, self.col-1))
-        # ↖
-        positions.append((self.row-1, self.col-1))
-        # ↗
-        positions.append((self.row-1, self.col+1))
-        # ↘
-        positions.append((self.row+1, self.col+1))
-        # ↙
-        positions.append((self.row+1, self.col-1))
-        return random.choice(positions)
-
-    def pick_fast_move(self):
-        positions = []
-        # stay
-        positions.append((self.row, self.col))
-        # ↑
-        positions.append((self.row-10, self.col))
-        # →
-        positions.append((self.row, self.col+10))
-        # ↓
-        positions.append((self.row+10, self.col))
-        # ←
-        positions.append((self.row, self.col-10))
-        # ↖
-        positions.append((self.row-10, self.col-10))
-        # ↗
-        positions.append((self.row-10, self.col+10))
-        # ↘
-        positions.append((self.row+10, self.col+10))
-        # ↙
-        positions.append((self.row+10, self.col-10))
-        return random.choice(positions)
-
-    def make_move(self, row, col):
-        self.row = row
-        self.col = col
-
-    def get_pos(self):
-        return self.row, self.col
 
 class Directions:
-    # stay
-    STAY = (0, 0)
     # ↑
     UP = (-1, 0)
     # →
