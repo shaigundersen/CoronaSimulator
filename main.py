@@ -7,22 +7,21 @@ from cell import Creature
 from cell import Directions
 import matplotlib.pyplot as plt
 
-SICK_PERCENT_PARAMETER = 0.0001
-FAST_PERCENT_PARAMETER = 0.2
-NUM_GENERATIONS = 10
-HIGH_INFECTION_PROB = 0.75
-LOW_INFECTION_PROB = 0.25
-T = 0.5
-X = 10
+NUM_CREATURES = 1750
+SICK_PERCENT_PARAMETER = 0.04
+FAST_PERCENT_PARAMETER = 0.4
+HIGH_INFECTION_PROB = 0.9
+LOW_INFECTION_PROB = 0.1
+T = 0.4
+X = 15
 
 class Grid:
-    def __init__(self, rows, width, num_creatures, sick_percent, faster_percent, num_generations,
+    def __init__(self, rows, width, num_creatures, sick_percent, faster_percent,
                  low_infection_prob, high_infection_prob, T, X):
         self.rows = self.cols = rows
         self.width = width
         self.cells = self.__make_cells()
         self.creatures = self.__make_creatures(num_creatures, sick_percent, faster_percent)
-        self.num_generations = num_generations
         self.low_infection_prob = low_infection_prob
         self.high_infection_prob = high_infection_prob
         self.T = T
@@ -208,8 +207,8 @@ if __name__ == '__main__':
     generations = []
     gen = 0
     # cell environment setup
-    grid = Grid(ROWS, dimension, 100*100, SICK_PERCENT_PARAMETER, FAST_PERCENT_PARAMETER,
-                NUM_GENERATIONS, LOW_INFECTION_PROB, HIGH_INFECTION_PROB, T, X)
+    grid = Grid(ROWS, dimension, NUM_CREATURES, SICK_PERCENT_PARAMETER, FAST_PERCENT_PARAMETER,
+                LOW_INFECTION_PROB, HIGH_INFECTION_PROB, T, X)
     game_running = True
     while game_running:
         infected_percents.append(grid.get_sickness_percent())
